@@ -6,6 +6,7 @@ import Header from "./components/Header";
 import Home from "./pages/Home";
 import { useDispatch, useSelector } from "react-redux";
 import { retrieveblogs } from "./actions/blogs";
+import CreatePost from "./pages/CreatePost";
 
 function App() {
   const blogs = useSelector((state) => state.blogs);
@@ -22,6 +23,7 @@ function App() {
       <Header />
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/createpost" element={<CreatePost />} />
       </Routes>
       <Footer />
     </div>
