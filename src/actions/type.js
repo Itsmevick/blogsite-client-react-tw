@@ -1,2 +1,0 @@
-export const CREATE_BLOGS = "CREATE_BLOGS";
-export const RETRIEVE_BLOGS = "RETRIEVE_BLOGS";

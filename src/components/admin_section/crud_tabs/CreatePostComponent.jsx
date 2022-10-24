@@ -1,50 +1,43 @@
 import React, { useState } from "react";
-import { useDispatch } from "react-redux";
-import { createBlogs } from "../../../actions/blogs";
+import {
+  useGetPostsQuery,
+  useAddNewPostMutation ,
+} from "../../../store/features/api/blogsSlice";
 
 export default function CreatePostComponent() {
-  const initialBlogsState = {
-    id: null,
-    title: "",
-    author: "",
-    content: "",
-    category: "",
-  };
-  const [blog, setBlog] = useState(initialBlogsState);
   const [submitted, setSubmitted] = useState(false);
+  const { data, error, isLoading, isSuccess } = useGetPostsQuery({
+    refetchOnMountOrArgChange: true,
+  });
+  const [addNewPost, response] = useAddNewPostMutation ();
 
-  const dispatch = useDispatch();
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+  if (error) {
+    return <div>Oops, an error occured</div>;
+  }
 
-  const handleInputChange = (event) => {
-    const { name, value } = event.target;
-    setBlog({ ...blog, [name]: value });
-  };
-
-  const saveBlog = (async) => {
-    const { title, author, content, category } = blog;
-
-     dispatch(createBlogs(title, author, content, category))
-      .then((data) => {
-        setBlog({
-          id: data.id,
-          title: data.title,
-          author: data.description,
-          content: data.content,
-          category: data.category,
-          date: data.date,
-          coverart: data.coverart,
-        });
-        setSubmitted(true);
-
-        console.log(data);
+ // console.log(data);
+  const handleSave = (e) => {
+    e.preventDefault();
+    const { title, author, category, content } = e.target.elements;
+    let formData = {
+      title: title.value,
+      author: author.value,
+      category: category.value,
+      content: content.value,
+    };
+    addNewPost(formData)
+      .unwrap()
+      .then((mdata) => {console.log(mdata)})
+      .then((error) => {
+        //console.log(error)
       })
-      .catch((e) => {
-        console.log(e);
-      });
+    //setSubmitted(true);
   };
 
   const newBlog = () => {
-    setBlog(initialBlogsState);
     setSubmitted(false);
   };
   return (
@@ -57,7 +50,7 @@ export default function CreatePostComponent() {
           </button>
         </div>
       ) : (
-        <form onSubmit={(e) => e.preventDefault()}>
+        <form onSubmit={handleSave}>
           <div className="flex flex-col justify-between">
             <div className="flex flex-col">
               <div className="flex gap-2">
@@ -66,9 +59,8 @@ export default function CreatePostComponent() {
                   <input
                     type="text"
                     className="border border-slate-600"
-                    onChange={handleInputChange}
-                    value={blog.title}
                     name="title"
+                    required
                   />
                 </div>
                 <div className="flex py-4 gap-4">
@@ -76,9 +68,8 @@ export default function CreatePostComponent() {
                   <input
                     type="text"
                     className="border border-slate-600"
-                    onChange={handleInputChange}
-                    value={blog.author}
                     name="author"
+                    required
                   />
                 </div>
                 <div className="flex py-4 gap-4">
@@ -86,9 +77,8 @@ export default function CreatePostComponent() {
                   <input
                     type="text"
                     className="border border-slate-600"
-                    onChange={handleInputChange}
-                    value={blog.category}
                     name="category"
+                    required
                   />
                 </div>
               </div>
@@ -100,16 +90,14 @@ export default function CreatePostComponent() {
                 rows="8"
                 className="block p-2.5 w-[90%] text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                 placeholder="Article content here..."
-                onChange={handleInputChange}
-                value={blog.content}
                 name="content"
+                required
               ></textarea>
             </div>
           </div>
           <button
             type="submit"
             className="my-1 px-3 py-2 bg-green-800 text-white tracking-widest uppercase semibold font-sm"
-            onClick={saveBlog}
           >
             Save Post
           </button>
